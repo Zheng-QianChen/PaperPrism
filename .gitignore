@@ -1,0 +1,27 @@
+# Build & release outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+publish/
+release/
+out/
+test-output/
+
+# Machine-local scripts & configs
+local-tools/
+settings.local.json
+snapshots/
+*.log
+*.old
+
+# IDE metadata
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates

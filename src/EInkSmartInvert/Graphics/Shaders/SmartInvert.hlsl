@@ -385,10 +385,37 @@ float4 PS_SmartInvert(VSOut pin) : SV_TARGET
 
     if (DebugView != 0)
     {
+        if (UseHardwareHolePunch != 0 && shouldHolePunch)
+        {
+            // Never paint opaque black over uncaptured passthrough windows/videos/desktop!
+            // Instead draw a crisp 2px orange wireframe along window & media cutout borders, keeping interiors Alpha=0.
+            float2 px = pin.UV * ScreenSize;
+            bool onBorder = false;
+            [loop]
+            for (uint wi = 0; wi < WindowCount; ++wi)
+            {
+                float4 r = WindowRects[wi];
+                if (px.x >= r.x && px.x < r.z && px.y >= r.y && px.y < r.w)
+                {
+                    float d = min(min(px.x - r.x, r.z - px.x), min(px.y - r.y, r.w - px.y));
+                    if (d < 3.0f) onBorder = true;
+                }
+            }
+            [loop]
+            for (uint pi = 0; pi < ProtectedCount; ++pi)
+            {
+                float4 r = ProtectedRects[pi];
+                if (px.x >= r.x && px.x < r.z && px.y >= r.y && px.y < r.w)
+                {
+                    float d = min(min(px.x - r.x, r.z - px.x), min(px.y - r.y, r.w - px.y));
+                    if (d < 3.0f) onBorder = true;
+                }
+            }
+            return onBorder ? float4(1.0f, 0.50f, 0.10f, 1.0f) : float4(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+
         float3 baseRgb = shouldInvert ? ComputeSmartInvertedColor(pin.UV, src) : ComputeLightEnhancedColor(src);
-        float3 tint = shouldHolePunch
-            ? float3(1.0f, 0.50f, 0.10f) // Orange = Native Alpha=0 Video/Photo Cutout
-            : (shouldInvert ? float3(0.15f, 0.55f, 1.0f) : float3(0.10f, 0.85f, 0.30f));
+        float3 tint = shouldInvert ? float3(0.15f, 0.55f, 1.0f) : float3(0.10f, 0.85f, 0.30f);
         return float4(lerp(baseRgb, tint, 0.22f), 1.0f);
     }
 

@@ -126,7 +126,7 @@ public sealed class AppSettings
             new AppInvertRule
             {
                 Name = "Codex",
-                MatchProcesses = "codex",
+                MatchProcesses = "codex; ChatGPT",
                 Enabled = true,
                 RuleMode = AppRuleMode.FollowGlobal
             },
